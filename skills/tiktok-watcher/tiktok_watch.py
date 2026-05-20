@@ -173,3 +173,83 @@ def download(url: str, dl_dir: Path) -> dict:
             "yt-dlp produced no metadata — the post may be private, deleted, or region-locked."
         )
     return json.loads(info_files[0].read_text(encoding="utf-8"))
+
+
+def _renumber_frames(raw_frames: list[Path], frames_dir: Path) -> list[Path]:
+    """Rename kept raw frames to frame-NN.jpg; delete any leftover raw frames."""
+    final: list[Path] = []
+    for idx, src in enumerate(raw_frames, start=1):
+        dst = frames_dir / f"frame-{idx:02d}.jpg"
+        src.replace(dst)
+        final.append(dst)
+    for leftover in frames_dir.glob("raw-*.jpg"):
+        leftover.unlink()
+    return final
+
+
+def extract_frames(video: Path, frames_dir: Path, max_frames: int, duration: float) -> list[Path]:
+    """Extract up to max_frames keyframes: scene detection, then even-sampling fallback."""
+    frames_dir.mkdir(parents=True, exist_ok=True)
+    scale = f"scale=-2:'min({FRAME_LONG_EDGE},ih)'"
+    run([
+        "ffmpeg", "-y", "-i", str(video),
+        "-vf", f"select='gt(scene,{SCENE_THRESHOLD})',{scale}",
+        "-vsync", "vfr", str(frames_dir / "raw-%03d.jpg"),
+    ])
+    raw = sorted(frames_dir.glob("raw-*.jpg"))
+    if needs_even_sampling(len(raw)):
+        for frame in raw:
+            frame.unlink()
+        fps = max(0.1, max_frames / max(duration, 1.0))
+        run([
+            "ffmpeg", "-y", "-i", str(video),
+            "-vf", f"fps={fps:.4f},{scale}",
+            str(frames_dir / "raw-%03d.jpg"),
+        ])
+        raw = sorted(frames_dir.glob("raw-*.jpg"))
+    kept = [raw[i] for i in evenly_spaced_indices(len(raw), max_frames)]
+    return _renumber_frames(kept, frames_dir)
+
+
+def collect_photo_frames(dl_dir: Path, frames_dir: Path, max_frames: int) -> list[Path]:
+    """Copy carousel images from dl_dir into frames_dir as frame-NN.<ext>."""
+    frames_dir.mkdir(parents=True, exist_ok=True)
+    images = sorted(p for p in dl_dir.iterdir() if p.suffix.lower() in IMAGE_EXTS)
+    kept = [images[i] for i in evenly_spaced_indices(len(images), max_frames)]
+    final: list[Path] = []
+    for idx, src in enumerate(kept, start=1):
+        dst = frames_dir / f"frame-{idx:02d}{src.suffix.lower()}"
+        shutil.copy2(src, dst)
+        final.append(dst)
+    return final
+
+
+def extract_audio(video: Path, audio_path: Path) -> None:
+    """Extract 16 kHz mono WAV audio from the video."""
+    run(["ffmpeg", "-y", "-i", str(video), "-vn", "-ac", "1", "-ar", "16000", str(audio_path)])
+
+
+def transcribe(audio_path: Path, out_dir: Path, model: str) -> str:
+    """Transcribe audio with local whisper; write transcript.txt/json, return the text."""
+    run([
+        "whisper", str(audio_path),
+        "--model", model,
+        "--output_format", "all",
+        "--output_dir", str(out_dir),
+        "--condition_on_previous_text", "False",
+        "--verbose", "False",
+    ])
+    stem = audio_path.stem
+    text = ""
+    for fmt in ("txt", "json", "srt", "vtt", "tsv"):
+        produced = out_dir / f"{stem}.{fmt}"
+        if not produced.exists():
+            continue
+        if fmt == "txt":
+            text = produced.read_text(encoding="utf-8").strip()
+            produced.replace(out_dir / "transcript.txt")
+        elif fmt == "json":
+            produced.replace(out_dir / "transcript.json")
+        else:
+            produced.unlink()
+    return text
