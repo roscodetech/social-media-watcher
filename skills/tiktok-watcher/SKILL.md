@@ -10,8 +10,8 @@ transcribed audio), and write a structured summary.
 
 ## Prerequisites
 
-The extractor shells out to three CLI tools. Before running, confirm they are on
-PATH: `python`, `yt-dlp`, `ffmpeg`, `whisper`.
+The extractor needs Python plus three CLI tools. Before running, confirm all of
+these are on PATH: `python`, `yt-dlp`, `ffmpeg`, `whisper`.
 
 If any are missing, tell the user how to install them and stop:
 - `yt-dlp` and `whisper`: `pip install -r requirements.txt` (in this skill's directory)
