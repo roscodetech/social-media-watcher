@@ -113,3 +113,32 @@ def evenly_spaced_indices(total: int, max_count: int) -> list[int]:
         return list(range(total))
     step = total / max_count
     return [min(total - 1, int(i * step)) for i in range(max_count)]
+
+
+# --- Output bundle -----------------------------------------------------------
+def make_output_dir(base: Path, video_id: str, now: datetime | None = None) -> Path:
+    """Create and return base/<UTC-timestamp>-<video-id>/."""
+    moment = now or datetime.now(timezone.utc)
+    stamp = moment.strftime("%Y%m%d-%H%M%S")
+    out = base / f"{stamp}-{video_id}"
+    out.mkdir(parents=True, exist_ok=True)
+    return out
+
+
+def build_manifest(
+    run_type: str,
+    output_dir: Path,
+    frame_paths: list[Path],
+    transcript_text: str,
+    metadata: dict,
+) -> dict:
+    """Assemble the manifest dict the skill consumes to write the summary."""
+    return {
+        "type": run_type,
+        "output_dir": str(output_dir),
+        "frames": [str(p) for p in frame_paths],
+        "frame_count": len(frame_paths),
+        "transcript": transcript_text,
+        "has_speech": bool(transcript_text.strip()),
+        "metadata": metadata,
+    }
