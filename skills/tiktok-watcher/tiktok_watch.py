@@ -294,29 +294,34 @@ def main(argv: list[str] | None = None) -> int:
     transcript_text = ""
 
     videos = sorted(dl_dir.glob("*.mp4"))
-    if videos:
-        run_type = "video"
-        video_path = out_dir / "video.mp4"
-        videos[0].replace(video_path)
-        duration = float(metadata["duration_seconds"] or 0) or 1.0
-        frame_paths = extract_frames(video_path, frames_dir, args.max_frames, duration)
-        try:
-            audio_path = out_dir / "audio.wav"
-            extract_audio(video_path, audio_path)
-            transcript_text = transcribe(audio_path, out_dir, args.whisper_model)
-        except RuntimeError as exc:
-            print(f"WARNING: audio/transcription skipped: {exc}", file=sys.stderr)
-    else:
-        run_type = "photo"
-        frame_paths = collect_photo_frames(dl_dir, frames_dir, args.max_frames)
-        if not frame_paths:
-            print("ERROR: download contained neither a video nor images.", file=sys.stderr)
-            shutil.rmtree(work, ignore_errors=True)
-            return 1
+    try:
+        if videos:
+            run_type = "video"
+            video_path = out_dir / "video.mp4"
+            videos[0].replace(video_path)
+            duration = float(metadata["duration_seconds"] or 0) or 1.0
+            frame_paths = extract_frames(video_path, frames_dir, args.max_frames, duration)
+            try:
+                audio_path = out_dir / "audio.wav"
+                extract_audio(video_path, audio_path)
+                transcript_text = transcribe(audio_path, out_dir, args.whisper_model)
+            except RuntimeError as exc:
+                print(f"WARNING: audio/transcription skipped: {exc}", file=sys.stderr)
+        else:
+            run_type = "photo"
+            frame_paths = collect_photo_frames(dl_dir, frames_dir, args.max_frames)
+            if not frame_paths:
+                print("ERROR: download contained neither a video nor images.", file=sys.stderr)
+                shutil.rmtree(work, ignore_errors=True)
+                return 1
 
-    (out_dir / "info.json").write_text(json.dumps(info, indent=2), encoding="utf-8")
-    manifest = build_manifest(run_type, out_dir, frame_paths, transcript_text, metadata)
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        (out_dir / "info.json").write_text(json.dumps(info, indent=2), encoding="utf-8")
+        manifest = build_manifest(run_type, out_dir, frame_paths, transcript_text, metadata)
+        (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    except RuntimeError as exc:
+        print(f"ERROR: processing failed: {exc}", file=sys.stderr)
+        shutil.rmtree(work, ignore_errors=True)
+        return 1
     shutil.rmtree(work, ignore_errors=True)
 
     print(str(out_dir))
