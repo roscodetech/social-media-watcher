@@ -26,3 +26,7 @@ def test_evenly_spaced_indices_downsamples_when_over_cap():
 def test_evenly_spaced_indices_handles_empty_and_zero():
     assert tiktok_watch.evenly_spaced_indices(0, 14) == []
     assert tiktok_watch.evenly_spaced_indices(10, 0) == []
+
+
+def test_evenly_spaced_indices_exact_cap():
+    assert tiktok_watch.evenly_spaced_indices(5, 5) == [0, 1, 2, 3, 4]
