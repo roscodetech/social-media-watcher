@@ -162,6 +162,8 @@ def run(cmd: list[str]) -> subprocess.CompletedProcess:
 
 def download(url: str, dl_dir: Path) -> dict:
     """Download the post into dl_dir with yt-dlp; return the first info-json dict."""
+    if dl_dir.exists():
+        shutil.rmtree(dl_dir)
     dl_dir.mkdir(parents=True, exist_ok=True)
     template = str(dl_dir / "%(autonumber)03d.%(ext)s")
     run(["yt-dlp", "--write-info-json", "-o", template, url])
