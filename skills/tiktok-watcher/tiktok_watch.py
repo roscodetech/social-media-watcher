@@ -166,7 +166,9 @@ def download(url: str, dl_dir: Path) -> dict:
         shutil.rmtree(dl_dir)
     dl_dir.mkdir(parents=True, exist_ok=True)
     template = str(dl_dir / "%(autonumber)03d.%(ext)s")
-    run(["yt-dlp", "--write-info-json", "-o", template, url])
+    # Prefer h264: TikTok's HEVC (bytevc1) variants are often delivered
+    # video-only despite advertising an audio codec, which breaks transcription.
+    run(["yt-dlp", "-S", "vcodec:h264", "--write-info-json", "-o", template, url])
     info_files = sorted(dl_dir.glob("*.info.json"))
     if not info_files:
         raise RuntimeError(
