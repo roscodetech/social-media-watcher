@@ -142,3 +142,32 @@ def build_manifest(
         "has_speech": bool(transcript_text.strip()),
         "metadata": metadata,
     }
+
+
+# --- External processes ------------------------------------------------------
+def check_prereqs() -> list[str]:
+    """Return the required CLI tools that are missing from PATH, in REQUIRED_TOOLS order."""
+    return [tool for tool in REQUIRED_TOOLS if shutil.which(tool) is None]
+
+
+def run(cmd: list[str]) -> subprocess.CompletedProcess:
+    """Run a command; raise RuntimeError with stderr on non-zero exit."""
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"`{' '.join(cmd[:2])} ...` failed: {result.stderr.strip() or 'unknown error'}"
+        )
+    return result
+
+
+def download(url: str, dl_dir: Path) -> dict:
+    """Download the post into dl_dir with yt-dlp; return the first info-json dict."""
+    dl_dir.mkdir(parents=True, exist_ok=True)
+    template = str(dl_dir / "%(autonumber)03d.%(ext)s")
+    run(["yt-dlp", "--write-info-json", "-o", template, url])
+    info_files = sorted(dl_dir.glob("*.info.json"))
+    if not info_files:
+        raise RuntimeError(
+            "yt-dlp produced no metadata — the post may be private, deleted, or region-locked."
+        )
+    return json.loads(info_files[0].read_text(encoding="utf-8"))
