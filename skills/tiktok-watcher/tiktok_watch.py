@@ -97,3 +97,19 @@ def extract_metadata(info: dict) -> dict:
         "music": info.get("track") or info.get("music") or None,
         "upload_date": info.get("upload_date"),
     }
+
+
+# --- Frame selection ---------------------------------------------------------
+def needs_even_sampling(scene_frame_count: int) -> bool:
+    """True if scene detection produced too few frames to rely on."""
+    return scene_frame_count < MIN_SCENE_FRAMES
+
+
+def evenly_spaced_indices(total: int, max_count: int) -> list[int]:
+    """Pick up to max_count indices spread evenly across range(total)."""
+    if max_count <= 0 or total <= 0:
+        return []
+    if total <= max_count:
+        return list(range(total))
+    step = total / max_count
+    return [min(total - 1, int(i * step)) for i in range(max_count)]
