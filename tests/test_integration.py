@@ -28,14 +28,17 @@ def test_end_to_end_produces_artifact_bundle(tmp_path):
     )
     assert result.returncode == 0, result.stderr
 
-    out_dir = Path(result.stdout.strip().splitlines()[-1])
-    assert out_dir.is_dir()
+    lines = [line for line in result.stdout.strip().splitlines() if line]
+    assert len(lines) == 1, f"expected one stdout line (the output dir), got:\n{result.stdout}"
+    out_dir = Path(lines[-1])
+    assert out_dir.is_dir(), f"output dir not found; stdout was:\n{result.stdout}"
 
     manifest = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["type"] in ("video", "photo")
     assert manifest["frame_count"] > 0
     assert len(manifest["frames"]) == manifest["frame_count"]
     for frame in manifest["frames"]:
+        assert Path(frame).is_absolute(), f"expected absolute frame path, got {frame!r}"
         assert Path(frame).is_file()
     assert (out_dir / "info.json").is_file()
     assert manifest["metadata"]["video_id"]
