@@ -68,3 +68,32 @@ def validate_url(url: str) -> str:
             f"URL does not point to a single TikTok post (looks like a profile or feed): {url!r}"
         )
     return cleaned
+
+
+# --- Metadata ----------------------------------------------------------------
+def extract_hashtags(text: str) -> list[str]:
+    """Return an ordered, case-insensitive, de-duplicated list of hashtags in text."""
+    seen: dict[str, None] = {}
+    for tag in HASHTAG_RE.findall(text or ""):
+        seen.setdefault(tag.lower(), None)
+    return list(seen)
+
+
+def extract_metadata(info: dict) -> dict:
+    """Pull the fields the skill needs from a yt-dlp info-json dict."""
+    description = info.get("description") or ""
+    return {
+        "video_id": info.get("id"),
+        "url": info.get("webpage_url"),
+        "author_handle": info.get("uploader_id") or info.get("uploader"),
+        "author_name": info.get("creator") or info.get("uploader"),
+        "description": description,
+        "hashtags": extract_hashtags(description),
+        "duration_seconds": info.get("duration"),
+        "view_count": info.get("view_count"),
+        "like_count": info.get("like_count"),
+        "comment_count": info.get("comment_count"),
+        "repost_count": info.get("repost_count"),
+        "music": info.get("track") or info.get("music") or None,
+        "upload_date": info.get("upload_date"),
+    }
