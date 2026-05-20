@@ -1,0 +1,2 @@
+-r skills/tiktok-watcher/requirements.txt
+pytest>=8.0

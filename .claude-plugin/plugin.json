@@ -1,0 +1,24 @@
+{
+  "name": "tiktok-watcher",
+  "version": "0.1.0",
+  "description": "Take a TikTok URL, download and watch the video, and produce a structured summary with a saved artifact bundle.",
+  "author": {
+    "name": "ROSCODE TECH",
+    "url": "https://roscodetech.com",
+    "email": "roscoe@roscodetech.com"
+  },
+  "homepage": "https://github.com/roscodetech/tiktok-watcher",
+  "repository": "https://github.com/roscodetech/tiktok-watcher",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "skill",
+    "tiktok",
+    "video",
+    "summarization",
+    "transcription",
+    "whisper",
+    "yt-dlp",
+    "ffmpeg"
+  ]
+}

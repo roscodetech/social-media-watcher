@@ -1,0 +1,46 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tiktok-watcher",
+  "description": "Summarize a TikTok video from its URL — Claude downloads it, watches the frames, transcribes the audio, and writes a structured summary.",
+  "owner": {
+    "name": "ROSCODE TECH",
+    "email": "roscoe@roscodetech.com",
+    "url": "https://roscodetech.com"
+  },
+  "metadata": {
+    "description": "A Claude Code plugin that downloads, watches, and summarizes TikTok videos locally."
+  },
+  "plugins": [
+    {
+      "name": "tiktok-watcher",
+      "source": "./",
+      "description": "Takes a TikTok video or photo URL, downloads it with yt-dlp, extracts keyframes and audio with ffmpeg, transcribes speech with local Whisper, and produces a structured summary plus a saved artifact bundle.",
+      "version": "0.1.0",
+      "author": {
+        "name": "ROSCODE TECH",
+        "email": "roscoe@roscodetech.com",
+        "url": "https://roscodetech.com"
+      },
+      "homepage": "https://github.com/roscodetech/tiktok-watcher",
+      "repository": "https://github.com/roscodetech/tiktok-watcher",
+      "license": "MIT",
+      "keywords": [
+        "tiktok",
+        "video",
+        "summarization",
+        "transcription",
+        "whisper",
+        "yt-dlp",
+        "ffmpeg"
+      ],
+      "category": "media",
+      "tags": [
+        "tiktok",
+        "video",
+        "summarization",
+        "transcription"
+      ],
+      "strict": false
+    }
+  ]
+}
