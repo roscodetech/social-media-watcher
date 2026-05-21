@@ -15,12 +15,21 @@ def test_evenly_spaced_indices():
     assert frames.evenly_spaced_indices(10, 0) == []
 
 
-def test_chapter_frame_seconds_uses_chapter_starts():
+def test_chapter_frame_seconds_includes_all_chapter_starts():
     chapters = [{"start": 0}, {"start": 120}, {"start": 300}]
     secs = frames.chapter_frame_seconds(chapters, duration=600.0, max_frames=30)
-    assert secs[:3] == [0.0, 120.0, 300.0]
+    assert 0.0 in secs and 120.0 in secs and 300.0 in secs
+    assert len(secs) <= 30
     assert all(0 <= s < 600 for s in secs)
     assert secs == sorted(secs)
+
+
+def test_chapter_frame_seconds_downselects_when_many_chapters():
+    chapters = [{"start": float(i * 10)} for i in range(50)]
+    secs = frames.chapter_frame_seconds(chapters, duration=600.0, max_frames=12)
+    assert len(secs) == 12
+    assert secs == sorted(secs)
+    assert all(s in {c["start"] for c in chapters} for s in secs)
 
 
 def test_even_frame_seconds_spreads_across_duration():

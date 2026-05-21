@@ -41,25 +41,16 @@ def even_frame_seconds(duration: float, max_frames: int) -> list[float]:
 def chapter_frame_seconds(
     chapters: list[dict], duration: float, max_frames: int
 ) -> list[float]:
-    """Timestamps biased to chapter starts, topped up with even sampling."""
+    """Chronological timestamps including every chapter start, topped up with
+    even sampling across the whole video, capped at max_frames."""
     starts = sorted({float(c["start"]) for c in chapters
                      if c.get("start") is not None and 0 <= c["start"] < duration})
     if len(starts) >= max_frames:
         keep = [starts[i] for i in evenly_spaced_indices(len(starts), max_frames)]
         return sorted(keep)
-
-    starts_set = set(starts)
-    remaining_count = max_frames - len(starts)
-
-    after_last_chapter = duration - starts[-1] if starts else duration
-    if after_last_chapter > 0:
-        samples_after = even_frame_seconds(after_last_chapter, remaining_count)
-        extra = [starts[-1] + s for s in samples_after[1:] if starts[-1] + s < duration and starts[-1] + s not in starts_set]
-    else:
-        extra = []
-
-    merged = sorted(starts + extra[:remaining_count])
-    return merged[:max_frames]
+    extra = [s for s in even_frame_seconds(duration, max_frames) if s not in starts]
+    room = max_frames - len(starts)
+    return sorted(starts + extra[:room])
 
 
 def _renumber_frames(raw_frames: list[Path], frames_dir: Path) -> list[Path]:
