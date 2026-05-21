@@ -131,7 +131,7 @@ def main(argv: list[str] | None = None) -> int:
             chapters=chapters, metadata=metadata)
         (out_dir / "manifest.json").write_text(
             json.dumps(manifest, indent=2), encoding="utf-8")
-    except RuntimeError as exc:
+    except (RuntimeError, OSError) as exc:
         print(f"ERROR: processing failed: {exc}", file=sys.stderr)
         shutil.rmtree(work, ignore_errors=True)
         return 1
