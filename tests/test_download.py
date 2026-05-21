@@ -24,6 +24,9 @@ def test_build_ytdlp_cmd_includes_adapter_args_and_subs(tmp_path):
     assert "-S" in cmd and "vcodec:h264" in cmd
     assert "--write-info-json" in cmd
     assert "--write-subs" in cmd and "--write-auto-subs" in cmd
+    assert "--sub-langs" in cmd
+    assert "--convert-subs" in cmd
+    assert cmd[cmd.index("--convert-subs") + 1] == "srt"
     assert "--cookies-from-browser" not in cmd
 
 
