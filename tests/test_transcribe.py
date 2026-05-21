@@ -41,3 +41,23 @@ def test_find_caption_file_prefers_srt(tmp_path):
 def test_find_caption_file_none_when_absent(tmp_path):
     (tmp_path / "001.info.json").write_text("{}", encoding="utf-8")
     assert transcribe.find_caption_file(tmp_path) is None
+
+
+TAGGED_SRT = """1
+00:00:00,000 --> 00:00:02,000
+<c>Hello</c> <i>there</i>
+
+2
+00:00:02,000 --> 00:00:04,000
+Line one
+Line two
+"""
+
+
+def test_parse_srt_strips_tags_and_joins_lines(tmp_path):
+    srt = tmp_path / "tagged.srt"
+    srt.write_text(TAGGED_SRT, encoding="utf-8")
+    segs = transcribe.parse_srt(srt)
+    assert segs[0]["text"] == "Hello there"
+    assert segs[0]["end"] == 2.0
+    assert segs[1]["text"] == "Line one Line two"

@@ -35,6 +35,7 @@ def parse_srt(path: Path) -> list[dict]:
         start_raw, _, end_raw = time_line.partition("-->")
         text_lines = lines[lines.index(time_line) + 1:]
         text = " ".join(t.strip() for t in text_lines).strip()
+        text = re.sub(r"<[^>]+>", "", text).strip()
         if text:
             segments.append({
                 "start": _srt_time_to_seconds(start_raw),
@@ -86,19 +87,18 @@ def resolve_transcript(
     """Produce the transcript: captions first, Whisper fallback.
 
     Writes transcript.txt + transcript.json into out_dir. Returns (text, source)
-    where source is 'captions', 'whisper', or 'none'.
+    where source is 'captions', 'whisper', or 'none'. Empty or absent captions
+    fall through to Whisper when a video is available.
     """
     caption = find_caption_file(dl_dir)
-    if caption is not None:
-        segments = parse_srt(caption)
-        source = "captions" if segments else "none"
-    elif video is not None:
+    segments = parse_srt(caption) if caption is not None else []
+    source = "captions" if segments else "none"
+
+    if not segments and video is not None:
         audio_path = out_dir / "audio.wav"
         extract_audio(video, audio_path)
         segments = whisper_transcribe(audio_path, out_dir, model)
         source = "whisper" if segments else "none"
-    else:
-        segments, source = [], "none"
 
     text = segments_to_text(segments)
     (out_dir / "transcript.txt").write_text(text, encoding="utf-8")
