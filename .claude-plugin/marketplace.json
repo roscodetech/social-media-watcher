@@ -1,45 +1,32 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "tiktok-watcher",
-  "description": "Summarize a TikTok video from its URL — Claude downloads it, watches the frames, transcribes the audio, and writes a structured summary.",
+  "name": "social-media-watcher",
+  "description": "Summarize a video from any social platform — Claude downloads it, watches the frames, transcribes the audio, and writes a structured summary.",
   "owner": {
     "name": "ROSCODE TECH",
     "email": "roscoe@roscodetech.com",
     "url": "https://roscodetech.com"
   },
   "metadata": {
-    "description": "A Claude Code plugin that downloads, watches, and summarizes TikTok videos locally."
+    "description": "A Claude Code plugin that downloads, watches, and summarizes social-media video locally."
   },
   "plugins": [
     {
-      "name": "tiktok-watcher",
+      "name": "social-media-watcher",
       "source": "./",
-      "description": "Takes a TikTok video or photo URL, downloads it with yt-dlp, extracts keyframes and audio with ffmpeg, transcribes speech with local Whisper, and produces a structured summary plus a saved artifact bundle.",
-      "version": "0.1.0",
+      "description": "Takes a video URL from TikTok, YouTube, Instagram, Facebook, X, Reddit, Bluesky, Pinterest, Twitch, Vimeo and more; downloads it with yt-dlp, extracts keyframes and a caption-first transcript, and produces a structured summary plus a saved artifact bundle. Handles short-form and long-form video.",
+      "version": "0.2.0",
       "author": {
         "name": "ROSCODE TECH",
         "email": "roscoe@roscodetech.com",
         "url": "https://roscodetech.com"
       },
-      "homepage": "https://github.com/roscodetech/tiktok-watcher",
-      "repository": "https://github.com/roscodetech/tiktok-watcher",
+      "homepage": "https://github.com/roscodetech/social-media-watcher",
+      "repository": "https://github.com/roscodetech/social-media-watcher",
       "license": "MIT",
-      "keywords": [
-        "tiktok",
-        "video",
-        "summarization",
-        "transcription",
-        "whisper",
-        "yt-dlp",
-        "ffmpeg"
-      ],
+      "keywords": ["video", "summarization", "transcription", "whisper", "yt-dlp", "ffmpeg", "tiktok", "youtube", "social-media"],
       "category": "media",
-      "tags": [
-        "tiktok",
-        "video",
-        "summarization",
-        "transcription"
-      ],
+      "tags": ["video", "summarization", "transcription", "social-media"],
       "strict": false
     }
   ]

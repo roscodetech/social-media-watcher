@@ -1,24 +1,10 @@
 {
-  "name": "tiktok-watcher",
-  "version": "0.1.0",
-  "description": "Take a TikTok URL, download and watch the video, and produce a structured summary with a saved artifact bundle.",
-  "author": {
-    "name": "ROSCODE TECH",
-    "url": "https://roscodetech.com",
-    "email": "roscoe@roscodetech.com"
-  },
-  "homepage": "https://github.com/roscodetech/tiktok-watcher",
-  "repository": "https://github.com/roscodetech/tiktok-watcher",
+  "name": "social-media-watcher",
+  "version": "0.2.0",
+  "description": "Take a video URL from any major social platform, download and watch it, and produce a structured summary with a saved artifact bundle.",
+  "author": {"name": "ROSCODE TECH", "url": "https://roscodetech.com", "email": "roscoe@roscodetech.com"},
+  "homepage": "https://github.com/roscodetech/social-media-watcher",
+  "repository": "https://github.com/roscodetech/social-media-watcher",
   "license": "MIT",
-  "keywords": [
-    "claude-code",
-    "skill",
-    "tiktok",
-    "video",
-    "summarization",
-    "transcription",
-    "whisper",
-    "yt-dlp",
-    "ffmpeg"
-  ]
+  "keywords": ["claude-code", "skill", "video", "summarization", "transcription", "whisper", "yt-dlp", "ffmpeg", "tiktok", "youtube", "social-media"]
 }
