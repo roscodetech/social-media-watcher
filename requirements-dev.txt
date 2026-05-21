@@ -1,2 +1,2 @@
--r skills/tiktok-watcher/requirements.txt
+-r skills/social-media-watcher/requirements.txt
 pytest>=8.0
