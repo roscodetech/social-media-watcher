@@ -27,7 +27,7 @@ REGISTRY: tuple[PlatformAdapter, ...] = (
     PlatformAdapter(
         "youtube", ("youtube.com", "youtu.be"),
         single_post_only=True,
-        post_markers=("/watch", "/shorts/", "youtu.be/", "/live/"),
+        post_markers=("/watch?", "/shorts/", "youtu.be/", "/live/"),
     ),
     PlatformAdapter("instagram", ("instagram.com",)),
     PlatformAdapter("facebook", ("facebook.com", "fb.watch")),

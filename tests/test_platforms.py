@@ -15,6 +15,8 @@ from social_media_watcher import platforms
     ("https://www.twitch.tv/videos/123", "twitch"),
     ("https://vimeo.com/123", "vimeo"),
     ("https://example.com/video/123", "generic"),
+    ("https://nottiktok.com/video/1", "generic"),
+    ("https://tiktok.com.evil.com/video/1", "generic"),
 ])
 def test_resolve_picks_the_right_adapter(url, expected):
     assert platforms.resolve(url).name == expected
@@ -53,3 +55,13 @@ def test_validate_url_generic_accepts_any_http_url():
 
 def test_tiktok_adapter_carries_h264_format_args():
     assert platforms.resolve("https://www.tiktok.com/@u/video/1").ytdlp_format_args == ("-S", "vcodec:h264")
+
+
+def test_validate_url_accepts_youtube_watch():
+    url, adapter = platforms.validate_url("https://www.youtube.com/watch?v=abc")
+    assert adapter.name == "youtube"
+
+
+def test_validate_url_rejects_youtube_path_containing_watch():
+    with pytest.raises(ValueError, match="single youtube post"):
+        platforms.validate_url("https://www.youtube.com/user/watchstuff")
