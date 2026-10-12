@@ -53,6 +53,11 @@ def chapter_frame_seconds(
     return sorted(starts + extra[:room])
 
 
+def _wrote_nothing(exc: RuntimeError) -> bool:
+    message = str(exc)
+    return "Nothing was written into output file" in message or "received no packets" in message
+
+
 def _renumber_frames(raw_frames: list[Path], frames_dir: Path) -> list[Path]:
     """Rename kept raw frames to frame-NN.jpg; delete leftover raw frames."""
     final: list[Path] = []
@@ -70,11 +75,17 @@ def extract_frames_scene(
 ) -> list[Path]:
     """Short-form: ffmpeg scene detection with an even-sampling fallback."""
     frames_dir.mkdir(parents=True, exist_ok=True)
-    run([
-        "ffmpeg", "-y", "-i", str(video),
-        "-vf", f"select='gt(scene,{SCENE_THRESHOLD})',{_SCALE}",
-        "-vsync", "vfr", str(frames_dir / "raw-%03d.jpg"),
-    ])
+    try:
+        run([
+            "ffmpeg", "-y", "-i", str(video),
+            "-vf", f"select='gt(scene,{SCENE_THRESHOLD})',{_SCALE}",
+            "-vsync", "vfr", str(frames_dir / "raw-%03d.jpg"),
+        ])
+    except RuntimeError as exc:
+        # No scene change selected any frame: ffmpeg exits non-zero ("Nothing was written ...").
+        # That is just "too few scenes" - fall through to even sampling. Anything else is real.
+        if not _wrote_nothing(exc):
+            raise
     raw = sorted(frames_dir.glob("raw-*.jpg"))
     if needs_even_sampling(len(raw)):
         for frame in raw:
